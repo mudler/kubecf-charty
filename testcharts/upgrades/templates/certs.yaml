@@ -1,0 +1,36 @@
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksSecret
+metadata:
+  name: nip.quarks.ca
+  namespace: {{.Values.namespaces.kubecf}}
+spec:
+  request:
+    certificate:
+      alternativeNames: null
+      commonName: {{.Values.system_domain}}
+      isCA: true
+      signerType: local
+  secretName: nip.secret.ca
+  type: certificate
+---
+apiVersion: quarks.cloudfoundry.org/v1alpha1
+kind: QuarksSecret
+metadata:
+  name: nip.quarks.tls
+  namespace: {{.Values.namespaces.kubecf}}
+spec:
+  request:
+    certificate:
+      CAKeyRef:
+        key: private_key
+        name: nip.secret.ca
+      CARef:
+        key: certificate
+        name: nip.secret.ca
+      alternativeNames:
+      - "*.{{.Values.system_domain}}"
+      commonName: kubeTlsTypeCert
+      isCA: false
+      signerType: local
+  secretName: kubecf-ingress-tls
+  type: tls
