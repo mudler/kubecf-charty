@@ -7,7 +7,7 @@ storageClass: "local-path"
 
 system_domain: "10.86.1.11.nip.io"
 creds: "testcluster"
-ha: true
+ha: false
 eirini: false
 ingress: true
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source funcs.sh
-set -x
+set -ex
 {{- if .Values.ingress }}
 cat <<EOF >>nginx_ingress.yaml
 tcp:
@@ -46,19 +46,19 @@ helm repo update
 kubectl create namespace {{.Values.namespaces.quarksoperator}}
 
 helm install cf-operator --namespace {{.Values.namespaces.quarksoperator}} \
-{{- if not .Values.cap.enabled }} ./cf-operator.tgz {{- else }} --devel --version {{.Values.cap.quarks.from.version}}  {{.Values.cap.quarks.from.chart}} {{- end }} \
-{{- if eq .Values.cap.kubecf.from.version "2.2.3" }} --set "global.operator.watchNamespace={{.Values.namespaces.kubecf}}" {{- else}} --set "global.singleNamespace.name={{.Values.namespaces.kubecf}}" {{- end }}
+{{- if not .Values.cap.enabled -}} ./cf-operator.tgz {{- else -}} --devel --version {{.Values.cap.quarks.from.version}}  {{.Values.cap.quarks.from.chart}} {{- end }} \
+{{- if eq .Values.cap.kubecf.from.version "2.2.3" -}} --set "global.operator.watchNamespace={{.Values.namespaces.kubecf}}" {{- else -}} --set "global.singleNamespace.name={{.Values.namespaces.kubecf}}" {{- end }}
 
 ./scripts/cf-operator-wait.sh
 
 {{- if .Values.ingress }}
 kubectl apply -f ../certs.yaml
 {{- end }}
-kubectl apply -f ../secret.yaml
 
 helm install kubecf --namespace {{.Values.namespaces.kubecf}} {{- if not .Values.cap.enabled }} ./kubecf_release.tgz {{- else }} --devel --version {{.Values.cap.kubecf.from.version}}  {{.Values.cap.kubecf.from.chart}} {{- end }}  --values ../values.yaml
 
 # The following is just ./scripts/kubecf-wait.sh but with increased number of retrials to fit HA deployment times.
+source scripts/include/setup.sh
 
 require_tools kubectl retry
 
@@ -89,17 +89,5 @@ green "Waiting for all deployments to be available"
 RETRIES=160 DELAY=5 retry check_resource_count deployments
 mapfile -t deployments < <(get_resource deployments)
 RETRIES=160 DELAY=5 wait_for_condition condition=Available "${deployments[@]}"
-
-
-{{- if not .Values.ingress }}
-green "Waiting for all endpoints to be available"
-
-
-RETRIES=160 DELAY=5 retry check_resource_count endpoints
-mapfile -t endpoints < <(get_resource endpoints)
-for endpoint in "${endpoints[@]}" ; do
-    RETRIES=180 DELAY=10 retry wait_for_endpoint "${endpoint}"
-done
-{{- end }}
 
 wait_ns {{.Values.namespaces.kubecf}}

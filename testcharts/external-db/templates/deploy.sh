@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -ex
 {{- if .Values.ingress }}
 cat <<EOF >>nginx_ingress.yaml
 tcp:
@@ -167,21 +167,5 @@ function wait_ns {
 RETRIES=160 DELAY=5 retry check_resource_count deployments
 mapfile -t deployments < <(get_resource deployments)
 RETRIES=160 DELAY=5 wait_for_condition condition=Available "${deployments[@]}"
-
-
-{{- if not .Values.ingress }}
-green "Waiting for all endpoints to be available"
-wait_for_endpoint() {
-    local endpoint="${1}"
-    local output='--output=jsonpath={.subsets.*.addresses.*.ip}'
-    test -n "$(get_resource "${endpoint}" "${output}")"
-}
-
-RETRIES=160 DELAY=5 retry check_resource_count endpoints
-mapfile -t endpoints < <(get_resource endpoints)
-for endpoint in "${endpoints[@]}" ; do
-    RETRIES=180 DELAY=10 retry wait_for_endpoint "${endpoint}"
-done
-{{- end }}
 
 wait_ns {{.Values.namespaces.kubecf}}
