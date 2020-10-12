@@ -7,9 +7,9 @@ credentials:
 
 features:
   eirini:
-    enabled: false
+    enabled: {{ .Values.eirini }}
   ingress:
-    enabled: true
+    enabled: {{ .Values.ingress }}
   embedded_database:
     enabled: false
   external_database:
@@ -54,3 +54,27 @@ features:
 kube:
   storage_class: {{.Values.storageClass}} 
 high_availability: {{.Values.ha}}    
+
+{{- if not .Values.ingress }}
+#  External endpoints are created for the instance groups only if
+#  features.ingress.enabled is false.
+services:
+  router:
+    type: LoadBalancer
+    externalIPs: {{ .Values.external_ip | nindent 4 }}
+    annotations:
+      "external-dns.alpha.kubernetes.io/hostname": "{{.Values.system_domain}}, *.{{.Values.system_domain}}"
+  ssh-proxy:
+    type: LoadBalancer
+    externalIPs: {{ .Values.external_ip | nindent 4 }}
+    annotations:
+      "external-dns.alpha.kubernetes.io/hostname": "ssh.{{.Values.system_domain}}"
+  tcp-router:
+    type: LoadBalancer
+    externalIPs: {{ .Values.external_ip | nindent 4 }}
+    annotations:
+      "external-dns.alpha.kubernetes.io/hostname": "*.tcp.{{.Values.system_domain}}, tcp.{{.Values.system_domain}}"
+    port_range:
+      start: 20000
+      end: 20008
+{{- end }}

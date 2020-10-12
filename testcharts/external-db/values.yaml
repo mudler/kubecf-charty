@@ -24,4 +24,6 @@ cap:
   quarks:
     version: 6.1.17+0.gec409fd7-rc3
     chart: suse/cf-operator
-  
+
+external_ip: |
+  - 10.86.1.11

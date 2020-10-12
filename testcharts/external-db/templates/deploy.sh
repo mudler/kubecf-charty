@@ -133,20 +133,6 @@ check_qjob_ready() {
 }
 RETRIES=380 DELAY=10 retry check_qjob_ready ig
 
-green "Waiting for things to exist"
-resources=(
-    Service/uaa Service/api 
-    {{- if not .Values.ha }}
-        Service/router-public
-    {{- end }}
-    StatefulSet/uaa StatefulSet/api StatefulSet/router
-)
-for resource in "${resources[@]}" ; do
-    RETRIES=340 DELAY=5 retry get_resource "${resource}"
-done
-
-RETRIES=160 DELAY=5 retry check_resource_count pods
-
 green "Waiting for all deployments to be available"
 wait_for_condition() {
     local condition="${1}"

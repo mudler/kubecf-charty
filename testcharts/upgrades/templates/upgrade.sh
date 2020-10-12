@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source funcs.sh
-set -x
+set -ex
 cd kubecf
 
 git checkout "{{.Values.kubecf.to}}" -b upgrade
@@ -35,28 +35,9 @@ require_tools kubectl retry
 green "Waiting for the BOSHDeployment to exist"
 RETRIES=130 DELAY=5 retry get_resource BOSHDeployment/kubecf
 
-green "Waiting for the quarks jobs to be done"
-RETRIES=380 DELAY=10 retry check_qjob_ready ig
-
-green "Waiting for things to exist"
-resources=(
-    Service/uaa Service/api 
-    {{- if not .Values.ha }}
-        Service/router-public
-    {{- end }}
-    StatefulSet/uaa StatefulSet/api StatefulSet/router
-)
-for resource in "${resources[@]}" ; do
-    RETRIES=340 DELAY=5 retry get_resource "${resource}"
-done
-
-RETRIES=160 DELAY=5 retry check_resource_count pods
-
 green "Waiting for all deployments to be available"
-
 RETRIES=160 DELAY=5 retry check_resource_count deployments
 mapfile -t deployments < <(get_resource deployments)
 RETRIES=160 DELAY=5 wait_for_condition condition=Available "${deployments[@]}"
-
 
 wait_ns {{.Values.namespaces.kubecf}}
