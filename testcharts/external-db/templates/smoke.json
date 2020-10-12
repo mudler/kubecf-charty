@@ -1,0 +1,16 @@
+{
+  "suite_name"                      : "CF_SMOKE_TESTS",
+  "api"                             : "api.{{.Values.system_domain}}",
+  "apps_domain"                     : "{{.Values.system_domain}}",
+  "user"                            : "admin",
+  "password"                        : "{{.Values.creds}}",
+  "skip_ssl_validation"             : true,
+  "cleanup"                         : true,
+  "logging_app"                     : "",
+  "runtime_app"                     : "",
+  "enable_windows_tests"            : false,
+  "windows_stack"                   : "windows2012R2",
+  "isolation_segment_name"          : "is1",
+  "isolation_segment_domain"        : "is1.{{.Values.system_domain}}",
+  "enable_isolation_segment_tests"  : false
+}

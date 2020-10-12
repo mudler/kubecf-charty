@@ -1,0 +1,56 @@
+system_domain: {{.Values.system_domain}}
+install_stacks:
+  - sle15
+credentials:
+  cf_admin_password: {{.Values.creds}}
+  uaa_admin_client_secret: {{.Values.creds}}
+
+features:
+  eirini:
+    enabled: false
+  ingress:
+    enabled: true
+  embedded_database:
+    enabled: false
+  external_database:
+    enabled: true
+    seed: true 
+    type: mysql
+    host: kubecf-mysql.kubecf-mysql.svc
+    port: 3306
+    databases:
+      uaa:
+        name: uaa
+        password: test
+        username: root
+      cc:
+        name: cloud_controller
+        password: test
+        username: root
+      bbs:
+        name: diego
+        password: test
+        username: root
+      routing_api:
+        name: routing-api
+        password: test
+        username: root
+      policy_server:
+        name: network_policy
+        password: test
+        username: root
+      silk_controller:
+        name: network_connectivity
+        password: test
+        username: root
+      locket:
+        name: locket
+        password: test
+        username: root
+      credhub:
+        name: credhub
+        password: test
+        username: root
+kube:
+  storage_class: {{.Values.storageClass}} 
+high_availability: {{.Values.ha}}    

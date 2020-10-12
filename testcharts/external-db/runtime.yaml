@@ -1,0 +1,12 @@
+commands:
+- run: "bash deps.sh"
+  name: "Download required dependencies"
+- run: "bash clean.sh"
+  name: "Clean KubeCF deployment"
+- run: "bash deploy.sh"
+  pre: "bash pre_deploy.sh"
+  name: "Deploy KubeCF"
+- run: "bash login.sh"
+  name: "Login to CF"
+- run: "bash smoke.sh"
+  name: "Smoke tests"
