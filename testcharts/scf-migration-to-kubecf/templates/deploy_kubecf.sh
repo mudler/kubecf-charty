@@ -5,6 +5,7 @@ source funcs.sh
 git clone --recurse-submodules https://github.com/cloudfoundry-incubator/kubecf
 
 cd kubecf
+source scripts/include/setup.sh
 
 git checkout "{{.Values.kubecf.checkout}}" -b build
 git submodule update --init --recursive --depth 1
