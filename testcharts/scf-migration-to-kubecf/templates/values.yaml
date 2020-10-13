@@ -9,7 +9,7 @@ features:
   eirini:
     enabled: {{ .Values.eirini }}
   ingress:
-    enabled: {{ .Values.ingress }}
+    enabled: false
   embedded_database:
     enabled: true
 
