@@ -77,4 +77,19 @@ services:
     port_range:
       start: 20000
       end: 20008
+
+{{- end }}
+
+{{- if .Values.eirini  }}
+{{- if not .Values.ingress  }}
+
+eirinix:
+  services:
+    ssh-proxy:
+      type: LoadBalancer
+      externalIPs: {{ .Values.external_ip | nindent 6 }}
+      annotations:
+        "external-dns.alpha.kubernetes.io/hostname": "{{.Values.system_domain}}, *.{{.Values.system_domain}}"
+
+{{- end }}
 {{- end }}

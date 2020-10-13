@@ -2,7 +2,20 @@
 
 source funcs.sh
 set -ex
+
+if [ ! -d "kubecf" ]; then
+
+
+git clone --recurse-submodules https://github.com/cloudfoundry-incubator/kubecf
+
 cd kubecf
+
+git checkout "{{.Values.kubecf.from}}" -b build
+git submodule update --init --recursive --depth 1
+else 
+cd kubecf
+
+fi
 
 git checkout "{{.Values.kubecf.to}}" -b upgrade
 git submodule update --init --recursive --depth 1
@@ -18,8 +31,8 @@ helm repo add suse https://kubernetes-charts.suse.com/
 helm repo update
 {{- end }}
 
-helm ugrade cf-operator --namespace {{.Values.namespaces.quarksoperator}} \
-{{- if not .Values.cap.enabled }} ./cf-operator.tgz {{- else }} --devel --version {{.Values.cap.quarks.to.version}}  {{.Values.cap.quarks.to.chart}} {{- end }} \
+helm upgrade cf-operator --namespace {{.Values.namespaces.quarksoperator}} \
+{{- if not .Values.cap.enabled -}} ./cf-operator.tgz {{- else -}} --devel --version {{.Values.cap.quarks.to.version}}  {{.Values.cap.quarks.to.chart}} {{- end }} \
  --set "global.singleNamespace.name={{.Values.namespaces.kubecf}}"
 
 sleep 30
