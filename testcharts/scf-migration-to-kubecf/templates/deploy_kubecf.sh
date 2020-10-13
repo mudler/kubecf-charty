@@ -9,67 +9,12 @@ cd kubecf
 git checkout "{{.Values.kubecf.checkout}}" -b build
 git submodule update --init --recursive --depth 1
 
-# Deploy mysql. It's from kubecf, but with opinionated settings
-source scripts/include/setup.sh
-
-require_tools kubectl helm
-
-: "${MYSQL_CHART:=https://kubernetes-charts.storage.googleapis.com/mysql-1.6.4.tgz}"
-: "${MYSQL_CLIENT_IMAGE:=mysql@sha256:c93ba1bafd65888947f5cd8bd45deb7b996885ec2a16c574c530c389335e9169}"
-
-default_name="kubecf-mysql"
-name="kubecf-mysql"
-default_namespace="kubecf-mysql"
-root_password="root"
-namespace="kubecf-mysql"
-databases=(
-  "cloud_controller"
-  "diego"
-  "network_connectivity"
-  "network_policy"
-  "routing-api"
-  "uaa"
-  "locket"
-  "credhub"
-)
-
-if ! kubectl get namespace "${namespace}" 1> /dev/null 2> /dev/null; then
-  kubectl create namespace "${namespace}"
-fi
-
-helm template "${name}" "${MYSQL_CHART}" \
-  --namespace "${namespace}" \
-  --set "mysqlRootPassword=${root_password}" \
-  --set "testFramework.enabled=false" \
-  | kubectl apply -f - \
-    --namespace "${namespace}"
-
-kubectl wait pod \
-  --for condition=ready \
-  --namespace "${namespace}" \
-  --selector "app=${name}" \
-  --timeout 300s
-
-# Ensure the database is fully functional.
-until echo "SELECT 'Ready!'" | kubectl run mysql-client --rm -i --restart='Never' --image "${MYSQL_CLIENT_IMAGE}" --namespace "${namespace}" --command -- \
-    mysql --host="${name}.${namespace}.svc" --user=root --password="${root_password}"; do
-      sleep 1
-done
-
-kubectl run mysql-client --rm -i --restart='Never' --image "${MYSQL_CLIENT_IMAGE}" --namespace "${namespace}" --command -- \
-    mysql --host="${name}.${namespace}.svc" --user=root --password="${root_password}" \
-    < <(
-      for database in ${databases[*]}; do
-        echo "CREATE DATABASE IF NOT EXISTS \`${database}\`;"
-      done
-    )
-
 {{- if not .Values.cap.enabled }}
 make kubecf-bundle
 
 CHART="output/kubecf-bundle-$(./scripts/version.sh).tgz"
 
-tar -xvf $CHART -C ./ > /dev/null
+tar -xvf $CHART -C ./ >/dev/null
 {{- else }}
 helm repo add suse https://kubernetes-charts.suse.com/
 helm repo update
