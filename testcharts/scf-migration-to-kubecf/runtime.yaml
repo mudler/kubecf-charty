@@ -11,6 +11,8 @@ commands:
 #  name: "Smoke tests"
 - run: "bash migrate.sh"
   name: "Migrate SCF data"
+- run: "bash clean.sh"
+  name: "Clean all"
 - run: "bash deploy_kubecf.sh"
   pre: "bash pre_deploy.sh"
   name: "Deploy KubeCF"
