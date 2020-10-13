@@ -1,0 +1,31 @@
+namespaces:
+  scf: "scf"
+  eirini: "eirini"
+  kubecf: "kubecf"
+  quarksoperator: "cf-operator"
+storageClass: "local-path"
+
+
+system_domain: "10.86.1.11.nip.io"
+creds: "testcluster"
+ha: false
+eirini: false
+
+cf_cli_version: "6.53.0"
+yq_version: "3.4.0"
+kubecf:
+  checkout: 3ef471889e9f4aee1c97826b0745bb64aa9c5817
+  
+external_ip: |
+  - 10.86.1.11
+cap:
+  enabled: true
+  scf:
+    version: "2.20.3"
+    chart: suse/cf
+  kubecf:
+    version: "2.5.8-rc3"
+    chart: suse/kubecf
+  quarks:
+    version: "6.1.17+0.gec409fd7-rc3"
+    chart: suse/cf-operator

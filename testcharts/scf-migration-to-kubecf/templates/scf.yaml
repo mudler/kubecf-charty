@@ -1,0 +1,46 @@
+secrets:
+    CLUSTER_ADMIN_PASSWORD: {{ .Values.creds | quote }}
+    UAA_ADMIN_CLIENT_SECRET: {{ .Values.creds | quote }}
+
+env:
+    DOMAIN: {{.Values.system_domain}}
+    UAA_HOST: uaa.{{.Values.system_domain}}
+    UAA_PORT: 2793
+    #GARDEN_ROOTFS_DRIVER: "btrfs"
+kube: 
+    external_ips: {{ .Values.external_ip | nindent 4 }}
+    storage_class:
+        persistent: {{.Values.storageClass}} 
+        shared: {{.Values.storageClass}} 
+    registry:
+       hostname: "registry.suse.com"
+       username: ""
+       password: ""
+    organization: "cap"
+    psp:
+        nonprivileged: "suse.cap.psp"
+        privileged: "suse.cap.psp"
+sizing:
+  diego_cell:
+    count: 1
+  cc_uploader:
+    capabilities: ["SYS_RESOURCE"]
+  diego_api:
+    capabilities: ["SYS_RESOURCE"]
+  diego_brain:
+    capabilities: ["SYS_RESOURCE"]
+  diego_ssh:
+    capabilities: ["SYS_RESOURCE"]
+  nats:
+    capabilities: ["SYS_RESOURCE"]
+  router:
+    capabilities: ["SYS_RESOURCE"]
+  routing_api:
+    capabilities: ["SYS_RESOURCE"]
+
+config:
+  HA: {{.Values.ha}}
+services:
+  loadbalanced: true
+enable:
+  uaa: true
