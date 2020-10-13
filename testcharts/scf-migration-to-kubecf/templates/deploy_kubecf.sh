@@ -22,11 +22,11 @@ helm repo update
 
 kubectl create namespace {{.Values.namespaces.quarksoperator}}
 
-helm install cf-operator --namespace {{.Values.namespaces.quarksoperator}} {{- if not .Values.cap.enabled }} ./cf-operator.tgz {{- else }} --devel --version {{.Values.cap.quarks.version}}  {{.Values.cap.quarks.chart}} {{- end }} --set "global.singleNamespace.name={{.Values.namespaces.kubecf}}"
+helm install cf-operator --namespace {{.Values.namespaces.quarksoperator}} {{- if not .Values.cap.enabled }} ./cf-operator.tgz {{- else }} --devel --version {{.Values.cap.quarks.version}} {{.Values.cap.quarks.chart}} {{- end }} --set "global.singleNamespace.name={{.Values.namespaces.kubecf}}"
 
 ./scripts/cf-operator-wait.sh
 
-helm install kubecf --namespace {{.Values.namespaces.kubecf}} {{- if not .Values.cap.enabled }} ./kubecf_release.tgz {{- else }} --devel --version {{.Values.cap.kubecf.version}}  {{.Values.cap.kubecf.chart}} {{- end }}  --values ../values.yaml
+helm install kubecf --namespace {{.Values.namespaces.kubecf}} {{- if not .Values.cap.enabled }} ./kubecf_release.tgz {{- else }} --devel --version {{.Values.cap.kubecf.version}} {{.Values.cap.kubecf.chart}} {{- end }} --values ../values.yaml
 
 # The following is just ./scripts/kubecf-wait.sh but with increased number of retrials to fit HA deployment times.
 
