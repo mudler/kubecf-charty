@@ -15,7 +15,10 @@ cf_cli_version: "6.53.0"
 kubecf:
   from: "master"
   to: 3ef471889e9f4aee1c97826b0745bb64aa9c5817
-  
+
+settings:
+  grace_sleep_time: "30"
+  retries: "180"
 external_ip: |
   - 10.86.1.11
 cap:
