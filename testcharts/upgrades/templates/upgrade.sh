@@ -5,7 +5,6 @@ set -ex
 
 if [ ! -d "kubecf" ]; then
 
-
 git clone --recurse-submodules https://github.com/cloudfoundry-incubator/kubecf
 
 cd kubecf
@@ -38,10 +37,14 @@ helm upgrade cf-operator --namespace {{.Values.namespaces.quarksoperator}} \
 sleep 30
 ./scripts/cf-operator-wait.sh
 
+wait_ns {{.Values.namespaces.kubecf}}
+
 helm upgrade kubecf --namespace {{.Values.namespaces.kubecf}} {{- if not .Values.cap.enabled }} ./kubecf_release.tgz {{- else }} --devel --version {{.Values.cap.kubecf.to.version}}  {{.Values.cap.kubecf.to.chart}} {{- end }}  --values ../values.yaml
 
 sleep 120
+
 # The following is just ./scripts/kubecf-wait.sh but with increased number of retrials to fit HA deployment times.
+source scripts/include/setup.sh
 
 require_tools kubectl retry
 
