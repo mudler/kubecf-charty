@@ -14,6 +14,7 @@ jobs:
         curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
         sudo wget https://github.com/mudler/charty/releases/download/v0.2.0/charty-0.2.0-linux-amd64 -O /usr/bin/charty
         sudo chmod +x /usr/bin/charty
+        sudo apt-get install python3-venv
     - name: Testing
       run: |
         kubectl cluster-info
