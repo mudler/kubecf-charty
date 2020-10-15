@@ -1,5 +1,9 @@
 #!/bin/bash
 set -ex
+
+helm repo add suse https://kubernetes-charts.suse.com/
+helm repo update
+
 {{- if .Values.ingress }}
 cat <<EOF >>nginx_ingress.yaml
 tcp:
@@ -91,9 +95,6 @@ make kubecf-bundle
 CHART="output/kubecf-bundle-$(./scripts/version.sh).tgz"
 
 tar -xvf $CHART -C ./ > /dev/null
-{{- else }}
-helm repo add suse https://kubernetes-charts.suse.com/
-helm repo update
 {{- end }}
 
 kubectl create namespace {{.Values.namespaces.quarksoperator}}
