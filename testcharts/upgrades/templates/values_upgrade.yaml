@@ -8,7 +8,7 @@ credentials:
 features:
   eirini:
 {{ if .Values.settings.switch_upgrade }}
-    enabled: false
+    enabled: true
 {{- else }}
     enabled: {{ .Values.eirini }}
 {{- end }}

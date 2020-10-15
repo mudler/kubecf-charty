@@ -55,8 +55,16 @@ if [ -z $current_key_label ]; then
 	DB_ENCRYPTION_KEY=$(kubectl exec api-group-0 --namespace scf -- bash -c 'echo $DB_ENCRYPTION_KEY')
 
 	cat >>values.yaml <<EOF
+ccdb:
+  encryption:
+    rotation:
+      key_labels:
+      - $current_key_label
+      current_key_label: $current_key_label
+
 credentials:
   cc_db_encryption_key: "$DB_ENCRYPTION_KEY"
+  ccdb_key_label_$current_key_label: "$current_key_label"
 EOF
 
 else
@@ -67,12 +75,12 @@ ccdb:
   encryption:
     rotation:
       key_labels:
-      $DB_ENCRYPTION_KEYS
+      - $current_key_label
       current_key_label: $current_key_label
 
 credentials:
   cc_db_encryption_key: "$DB_ENCRYPTION_KEY"
-  ccdb_key_label_new_key: "$current_key_label"
+  ccdb_key_label_$current_key_label: "$current_key_label"
 EOF
 
 fi

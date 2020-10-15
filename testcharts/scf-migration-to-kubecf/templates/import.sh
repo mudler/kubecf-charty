@@ -2,13 +2,20 @@
 set -e
 ROOT_DIR=$PWD
 BACKUP_DIR=$PWD/backup
-kubectl scale --replicas=0 sts api -n {{.Values.namespaces.kubecf}} --timeout=20m
-kubectl scale --replicas=0 sts cc-worker -n {{.Values.namespaces.kubecf}} --timeout=20m
-kubectl scale --replicas=0 sts uaa -n {{.Values.namespaces.kubecf}} --timeout=20m
 
-kubectl exec -t database-0 --namespace {{.Values.namespaces.kubecf}} -- bash -c \
-	"mysql \
-  -e 'SET GLOBAL pxc_strict_mode=DISABLED;'"
+cat <<EOF | kubectl exec -i database-0 --namespace {{.Values.namespaces.kubecf}} -- mysql
+SET GLOBAL pxc_strict_mode=PERMISSIVE;
+SET GLOBAL sql_mode='STRICT_ALL_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';
+set GLOBAL innodb_strict_mode='OFF';
+EOF
+
+#kubectl scale --replicas=0 sts api -n {{.Values.namespaces.kubecf}} --timeout=20m
+#kubectl scale --replicas=0 sts cc-worker -n {{.Values.namespaces.kubecf}} --timeout=20m
+#kubectl scale --replicas=0 sts uaa -n {{.Values.namespaces.kubecf}} --timeout=20m
+
+#kubectl exec -t database-0 --namespace {{.Values.namespaces.kubecf}} -- bash -c \
+#	"mysql \
+#  -e 'SET GLOBAL pxc_strict_mode=DISABLED;'"
 kubectl exec -t database-0 --namespace {{.Values.namespaces.kubecf}} -- bash -c \
 	"mysql \
   -e 'drop database uaa; create database uaa;'"
@@ -19,13 +26,14 @@ kubectl exec --stdin database-0 --namespace {{.Values.namespaces.kubecf}} -- bas
 
 kubectl cp $BACKUP_DIR/blobstore-src.tgz {{.Values.namespaces.kubecf}}/blobstore-0:/.
 
-kubectl exec --stdin --tty --namespace {{.Values.namespaces.kubecf}} blobstore-0 -- bash -l -c 'rm -rf /var/vcap/store/shared/* && tar xvf blobstore-src.tgz && rm blobstore-src.tgz'
+kubectl exec --stdin singleton-blobstore-0 --namespace {{.Values.namespaces.kubecf}} -- tar xvfz blobstore-src.tgz -C /
 
-kubectl exec mysql-0 --namespace {{.Values.namespaces.kubecf}} -- bash -c \
+kubectl delete singleton-blobstore-0 --namespace {{.Values.namespaces.kubecf}} 
+kubectl exec database-0 --namespace {{.Values.namespaces.kubecf}} -- bash -c \
 	"mysql \
   -e 'drop database cloud_controller; create database cloud_controller;'"
 
-kubectl exec --stdin mysql-0 --namespace {{.Values.namespaces.kubecf}} -- bash -c \
+kubectl exec --stdin database-0 --namespace {{.Values.namespaces.kubecf}} -- bash -c \
 	'mysql \
   cloud_controller' <$BACKUP_DIR/ccdb-src.sql
 
@@ -35,8 +43,8 @@ export CLOUD_CONTROLLER_NG_CONFIG=/var/vcap/jobs/cloud_controller_ng/config/clou
 cd /var/vcap/packages/cloud_controller_ng/cloud_controller_ng; \
 bundle exec rake rotate_cc_database_key:perform"
 
-kubectl exec -t database-0 --namespace {{.Values.namespaces.kubecf}} -- bash -c \
-	"mysql \
-  -e 'SET GLOBAL pxc_strict_mode=ENFORCING;'"
-kubectl scale --replicas=1 sts api -n {{.Values.namespaces.kubecf}} --timeout=20m
-kubectl scale --replicas=1 sts cc-worker -n {{.Values.namespaces.kubecf}} --timeout=20m
+#kubectl exec -t database-0 --namespace {{.Values.namespaces.kubecf}} -- bash -c \
+#	"mysql \
+#  -e 'SET GLOBAL pxc_strict_mode=ENFORCING;'"
+#kubectl scale --replicas=1 sts api -n {{.Values.namespaces.kubecf}} --timeout=20m
+#kubectl scale --replicas=1 sts cc-worker -n {{.Values.namespaces.kubecf}} --timeout=20m

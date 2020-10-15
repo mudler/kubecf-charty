@@ -20,8 +20,8 @@ EOF
 kubectl create namespace nginx-ingress
 
 helm install nginx-ingress suse/nginx-ingress \
---namespace nginx-ingress \
---values nginx_ingress.yaml
+	--namespace nginx-ingress \
+	--values nginx_ingress.yaml
 
 {{- end }}
 

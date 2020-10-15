@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ex
 
-{{- if .Values.eirini }}
+{{- if or .Values.eirini .Values.settings.switch_upgrade }}
 kubectl delete namespace {{.Values.namespaces.eirini}} || true
 {{- end }}
 

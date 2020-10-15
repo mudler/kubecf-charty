@@ -19,6 +19,8 @@ kubecf:
 settings:
   grace_sleep_time: "30"
   retries: "180"
+  switch_upgrade: true
+
 external_ip: |
   - 10.86.1.11
 cap:
