@@ -73,7 +73,7 @@ kubectl wait pod \
   --for condition=ready \
   --namespace "${namespace}" \
   --selector "app=${name}" \
-  --timeout 300s
+  --timeout 800s
 
 # Ensure the database is fully functional.
 until echo "SELECT 'Ready!'" | kubectl run mysql-client --rm -i --restart='Never' --image "${MYSQL_CLIENT_IMAGE}" --namespace "${namespace}" --command -- \
